@@ -1,9 +1,32 @@
 # Logs
 logs
+# Firebase build and deployment files
+/firebase-debug.log
+/firebase-debug.*.log
+.firebaserc
+
+# Firebase Hosting
+/firebase.json
+*.cache
+hosting/.cache
+
+# Firebase Functions
+/functions/node_modules/
+/functions/.env
+/functions/package-lock.json
+
+# Firebase Emulators
+/firebase-*.zip
+/.firebase/
+/emulator-ui/
+
+# Logs
+ ac64dfe0d02bfc736e4ec8f36027bf03ef31a4e3
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+<<<<<<< HEAD
 pnpm-debug.log*
 lerna-debug.log*
 
@@ -22,3 +45,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+
+# Environment files (local configs)
+/.env.*
+ ac64dfe0d02bfc736e4ec8f36027bf03ef31a4e3
