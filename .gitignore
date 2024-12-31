@@ -49,4 +49,4 @@ dist-ssr
 
 # Environment files (local configs)
 /.env.*
- ac64dfe0d02bfc736e4ec8f36027bf03ef31a4e3
+src/firebase.js
