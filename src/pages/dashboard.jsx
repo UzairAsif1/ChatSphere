@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Typography, Button } from '@mui/material';
-import { auth, signOutUser } from '../firebase';
+import { auth } from '../firebase/firebase';
 import { useNavigate } from 'react-router-dom';
+import { signOutUser } from '../firebase/Auth';
 
 function Dashboard() {
   const [user, setUser] = useState(null);
@@ -17,14 +18,14 @@ function Dashboard() {
         photo: currentUser.photoURL,
       });
     } else {
-      navigate('/login'); // Redirect to login if user is not authenticated
+      navigate('/login');
     }
   }, [navigate]);
 
   const handleSignOut = async () => {
     try {
       await signOutUser();
-      navigate('/login'); // Redirect to login after sign-out
+      navigate('/login');
     } catch (error) {
       console.error('Error signing out:', error.message);
       alert('Failed to sign out. Please try again.');
