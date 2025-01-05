@@ -1,12 +1,37 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Box, TextField, Button, Avatar, Typography, IconButton } from "@mui/material";
+import { Box, TextField, Button, Avatar, Typography, IconButton, CircularProgress } from "@mui/material";
 import EmojiPicker from "emoji-picker-react";
 import EmojiEmotionsIcon from "@mui/icons-material/EmojiEmotions";
+import { getUserDetails } from "../firebase/firestoreUtils";
 
-function ChatWindow({ messages, onSendMessage, currentUserId }) {
+function ChatWindow({ chat, messages, onSendMessage, currentUserId }) {
   const [messageText, setMessageText] = useState("");
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const messagesEndRef = useRef(null);
+  const [otherUser, setOtherUser] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchUserDetails = async () => {
+      if (chat && chat.participants) {
+        const otherUserId = chat.participants.find((id) => id !== currentUserId);
+        try {
+          const otherUserDetails = otherUserId ? await getUserDetails(otherUserId) : null;
+          const currentUserDetails = currentUserId ? await getUserDetails(currentUserId) : null;
+          setOtherUser(otherUserDetails || { name: "Unknown User", profilePicture: "" });
+          setCurrentUser(currentUserDetails || { name: "You", profilePicture: "" });
+        } catch (error) {
+          console.error("Error fetching user details:", error);
+          setOtherUser({ name: "Error fetching user", profilePicture: "" });
+          setCurrentUser({ name: "Error fetching user", profilePicture: "" });
+        }
+      }
+      setLoading(false);
+    };
+
+    fetchUserDetails();
+  }, [chat, currentUserId]);
 
   const handleSendMessage = () => {
     if (messageText.trim()) {
@@ -24,6 +49,38 @@ function ChatWindow({ messages, onSendMessage, currentUserId }) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages]);
+
+  if (loading) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100%",
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (!chat) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100%",
+        }}
+      >
+        <Typography variant="h6" color="text.secondary">
+          No chat selected.
+        </Typography>
+      </Box>
+    );
+  }
 
   return (
     <Box
@@ -47,9 +104,22 @@ function ChatWindow({ messages, onSendMessage, currentUserId }) {
           zIndex: 1000,
         }}
       >
-        <Typography variant="h6" noWrap>
-          Chat
-        </Typography>
+        {otherUser ? (
+          <>
+            <Avatar
+              src={otherUser.profilePicture}
+              alt={otherUser.name}
+              sx={{ width: 40, height: 40, marginRight: 2 }}
+            />
+            <Typography variant="h6" noWrap>
+              {otherUser.name}
+            </Typography>
+          </>
+        ) : (
+          <Typography variant="h6" noWrap>
+            Unknown User
+          </Typography>
+        )}
       </Box>
       <Box
         sx={{
@@ -63,19 +133,24 @@ function ChatWindow({ messages, onSendMessage, currentUserId }) {
             key={index}
             sx={{
               display: "flex",
-              flexDirection: "row",
-              justifyContent: msg.senderId === currentUserId ? "flex-end" : "flex-start",
+              flexDirection: msg.senderId === currentUserId ? "row-reverse" : "row",
               alignItems: "flex-end",
               marginBottom: 2,
             }}
           >
-            {msg.senderId !== currentUserId && (
-              <Avatar
-                src={msg.senderProfileImage}
-                alt={msg.senderName || "User"}
-                sx={{ width: 40, height: 40, marginRight: 1 }}
-              />
-            )}
+            <Avatar
+              src={
+                msg.senderId === currentUserId
+                  ? currentUser?.profilePicture
+                  : otherUser?.profilePicture
+              }
+              alt={
+                msg.senderId === currentUserId
+                  ? currentUser?.name || "You"
+                  : otherUser?.name || "User"
+              }
+              sx={{ width: 40, height: 40, margin: msg.senderId === currentUserId ? "0 0 0 10px" : "0 10px 0 0" }}
+            />
             <Box
               sx={{
                 maxWidth: "60%",
@@ -90,13 +165,6 @@ function ChatWindow({ messages, onSendMessage, currentUserId }) {
             >
               <Typography variant="body2">{msg.messageText}</Typography>
             </Box>
-            {msg.senderId === currentUserId && (
-              <Avatar
-                src={msg.senderProfileImage}
-                alt="You"
-                sx={{ width: 40, height: 40, marginLeft: 1 }}
-              />
-            )}
           </Box>
         ))}
         <div ref={messagesEndRef}></div>

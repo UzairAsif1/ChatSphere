@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Box, CircularProgress, Typography } from "@mui/material";
-import Navbar from "../components/navBar";
+import Navbar from "../components/NavBar";
 import Sidebar from "../components/SideBar";
 import ChatWindow from "../components/ChatWindow";
 import { listenToUserChats, listenToMessages, sendMessage } from "../firebase/firestoreUtils";
@@ -11,6 +11,7 @@ function ChatDashboard() {
   const [user, setUser] = useState(null);
   const [chats, setChats] = useState([]);
   const [selectedChatId, setSelectedChatId] = useState(null);
+  const [selectedChat, setSelectedChat] = useState(null);
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -35,10 +36,15 @@ function ChatDashboard() {
 
   useEffect(() => {
     if (selectedChatId) {
+      const chat = chats.find((c) => c.id === selectedChatId);
+      setSelectedChat(chat || null);
       const unsubscribe = listenToMessages(selectedChatId, setMessages);
       return unsubscribe;
+    } else {
+      setSelectedChat(null);
+      setMessages([]);
     }
-  }, [selectedChatId]);
+  }, [selectedChatId, chats]);
 
   const handleSendMessage = (text) => {
     if (selectedChatId && user) {
@@ -87,7 +93,7 @@ function ChatDashboard() {
         flexDirection: "column",
         height: "100vh",
         width: "100vw",
-        overflow: "hidden", 
+        overflow: "hidden",
       }}
     >
       <Navbar />
@@ -95,15 +101,15 @@ function ChatDashboard() {
         sx={{
           display: "flex",
           flexGrow: 1,
-          overflow: "hidden", 
-          flexDirection: { xs: "column", sm: "row" }, 
+          overflow: "hidden",
+          flexDirection: { xs: "column", sm: "row" },
         }}
       >
         <Box
           sx={{
-            width: { xs: "100%", sm: "300px" }, 
-            height: { xs: "40vh", sm: "100%" }, 
-            overflowY: "auto", 
+            width: { xs: "100%", sm: "300px" },
+            height: { xs: "40vh", sm: "100%" },
+            overflowY: "auto",
             bgcolor: "background.paper",
             borderRight: { sm: "1px solid", xs: "none" },
             borderColor: "divider",
@@ -111,22 +117,36 @@ function ChatDashboard() {
         >
           <Sidebar chats={chats} onSelectChat={setSelectedChatId} />
         </Box>
-
-       
         <Box
           sx={{
-            flexGrow: 1, 
+            flexGrow: 1,
             display: "flex",
             flexDirection: "column",
             height: { xs: "60vh", sm: "100%" },
-            overflow: "hidden", 
+            overflow: "hidden",
           }}
         >
-          <ChatWindow
-            messages={messages}
-            onSendMessage={handleSendMessage}
-            currentUserId={user?.uid}
-          />
+          {selectedChat ? (
+            <ChatWindow
+              chat={selectedChat}
+              messages={messages}
+              onSendMessage={handleSendMessage}
+              currentUserId={user?.uid}
+            />
+          ) : (
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                height: "100%",
+              }}
+            >
+              <Typography variant="h6" color="text.secondary">
+                Select a chat to start messaging.
+              </Typography>
+            </Box>
+          )}
         </Box>
       </Box>
     </Box>

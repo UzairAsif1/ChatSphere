@@ -151,7 +151,7 @@ function Sidebar({ chats, onSelectChat, activeChatId }) {
       )}
 
       {/* Divider */}
-      <Divider sx={{ my: 2 }} />
+      <Divider sx={{ my: 1 }} />
 
       <Typography variant="h6" sx={{ mb: 1, color: "text.primary" }}>
         Active Chats
