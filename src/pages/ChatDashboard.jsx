@@ -81,11 +81,53 @@ function ChatDashboard() {
   }
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", height: "100vh", width: "100vw" }}>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        height: "100vh",
+        width: "100vw",
+        overflow: "hidden", 
+      }}
+    >
       <Navbar />
-      <Box sx={{ display: "flex", flexGrow: 1 }}>
-        <Sidebar chats={chats} onSelectChat={setSelectedChatId} />
-        <ChatWindow messages={messages} onSendMessage={handleSendMessage} />
+      <Box
+        sx={{
+          display: "flex",
+          flexGrow: 1,
+          overflow: "hidden", 
+          flexDirection: { xs: "column", sm: "row" }, 
+        }}
+      >
+        <Box
+          sx={{
+            width: { xs: "100%", sm: "300px" }, 
+            height: { xs: "40vh", sm: "100%" }, 
+            overflowY: "auto", 
+            bgcolor: "background.paper",
+            borderRight: { sm: "1px solid", xs: "none" },
+            borderColor: "divider",
+          }}
+        >
+          <Sidebar chats={chats} onSelectChat={setSelectedChatId} />
+        </Box>
+
+       
+        <Box
+          sx={{
+            flexGrow: 1, 
+            display: "flex",
+            flexDirection: "column",
+            height: { xs: "60vh", sm: "100%" },
+            overflow: "hidden", 
+          }}
+        >
+          <ChatWindow
+            messages={messages}
+            onSendMessage={handleSendMessage}
+            currentUserId={user?.uid}
+          />
+        </Box>
       </Box>
     </Box>
   );

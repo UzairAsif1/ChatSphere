@@ -1,42 +1,58 @@
 import React, { useState, useEffect } from "react";
-import { Box, List, ListItem, ListItemText, ListItemAvatar, Avatar, Typography, TextField, CircularProgress, Divider } from "@mui/material";
+import {
+  Box,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemAvatar,
+  Avatar,
+  Typography,
+  TextField,
+  CircularProgress,
+  Divider,
+} from "@mui/material";
 import { query, collection, getDocs, where, doc, getDoc } from "firebase/firestore";
 import { db } from "../firebase/firebase";
 import { auth } from "../firebase/firebase";
 import { createChat } from "../firebase/firestoreUtils";
 
-function Sidebar({ chats, onSelectChat }) {
+function Sidebar({ chats, onSelectChat, activeChatId }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [userNames, setUserNames] = useState({});
+  const [userDetails, setUserDetails] = useState({}); 
 
   useEffect(() => {
-    const fetchUserNames = async () => {
+    const fetchUserDetails = async () => {
       const currentUserId = auth.currentUser?.uid;
-      const nameMap = {};
-
+      const detailsMap = { ...userDetails }; 
       for (const chat of chats) {
         const otherUserId = chat.participants.find((id) => id !== currentUserId);
-        if (!otherUserId) continue;
+        if (!otherUserId || detailsMap[otherUserId]) continue;
 
-        if (!nameMap[otherUserId]) {
-          const userRef = doc(db, "users", otherUserId);
-          const userSnap = await getDoc(userRef);
+        const userRef = doc(db, "users", otherUserId);
+        const userSnap = await getDoc(userRef);
 
-          if (userSnap.exists()) {
-            nameMap[otherUserId] = userSnap.data().name;
-          } else {
-            nameMap[otherUserId] = "Unknown User";
-          }
+        if (userSnap.exists()) {
+          const userData = userSnap.data();
+          detailsMap[otherUserId] = {
+            name: userData.name || "Unknown User",
+            profilePicture: userData.profilePicture || "",
+            status: userData.status || "Unavailable",
+          };
+        } else {
+          detailsMap[otherUserId] = {
+            name: "Unknown User",
+            profilePicture: "",
+            status: "Unavailable",
+          };
         }
       }
-
-      setUserNames(nameMap);
+      setUserDetails(detailsMap);
     };
 
     if (chats.length) {
-      fetchUserNames();
+      fetchUserDetails();
     }
   }, [chats]);
 
@@ -80,18 +96,16 @@ function Sidebar({ chats, onSelectChat }) {
   return (
     <Box
       sx={{
-        width: "25%",
+        width: { xs: "100%", sm: "300px" },
         height: "100%",
         bgcolor: "background.paper",
         overflowY: "auto",
-        borderRight: "1px solid",
+        borderRight: { sm: "1px solid", xs: "none" },
         borderColor: "divider",
         p: 2,
       }}
     >
-      <Typography variant="h6" sx={{ mb: 2, color: "text.primary" }}>
-        Active Chats
-      </Typography>
+      
       <TextField
         fullWidth
         variant="outlined"
@@ -101,6 +115,7 @@ function Sidebar({ chats, onSelectChat }) {
         onKeyDown={(e) => e.key === "Enter" && handleSearch()}
         sx={{ mb: 2 }}
       />
+
       {loading ? (
         <CircularProgress size={24} sx={{ display: "block", mx: "auto", my: 2 }} />
       ) : (
@@ -116,7 +131,13 @@ function Sidebar({ chats, onSelectChat }) {
               }}
             >
               <ListItemAvatar>
-                <Avatar src={user.profilePicture}>{user.name[0]}</Avatar>
+                <Avatar
+                  src={user.profilePicture}
+                  alt={user.name}
+                  sx={{ width: 40, height: 40 }}
+                >
+                  {!user.profilePicture ? user.name?.[0] : null}
+                </Avatar>
               </ListItemAvatar>
               <ListItemText
                 primary={user.name}
@@ -128,12 +149,24 @@ function Sidebar({ chats, onSelectChat }) {
           ))}
         </List>
       )}
+
+      {/* Divider */}
       <Divider sx={{ my: 2 }} />
+
+      <Typography variant="h6" sx={{ mb: 1, color: "text.primary" }}>
+        Active Chats
+      </Typography>
+
       <List>
         {chats.map((chat) => {
           const currentUserId = auth.currentUser?.uid;
           const otherUserId = chat.participants.find((id) => id !== currentUserId);
-          const otherUserName = userNames[otherUserId] || "Loading...";
+          const otherUser = userDetails[otherUserId] || {
+            name: "Loading...",
+            profilePicture: "",
+            status: "Loading...",
+          };
+          const isActive = chat.id === activeChatId;
 
           return (
             <ListItem
@@ -142,15 +175,22 @@ function Sidebar({ chats, onSelectChat }) {
               onClick={() => onSelectChat(chat.id)}
               sx={{
                 borderRadius: "10px",
-                "&:hover": { bgcolor: "background.default" },
+                bgcolor: isActive ? "primary.light" : "inherit",
+                "&:hover": { bgcolor: isActive ? "primary.light" : "background.default" },
               }}
             >
               <ListItemAvatar>
-                <Avatar>{otherUserName[0]}</Avatar>
+                <Avatar
+                  src={otherUser.profilePicture}
+                  alt={otherUser.name}
+                  sx={{ width: 40, height: 40 }}
+                >
+                  {!otherUser.profilePicture ? otherUser.name?.[0] : null}
+                </Avatar>
               </ListItemAvatar>
               <ListItemText
-                primary={otherUserName}
-                secondary={chat.lastMessage || "No messages yet"}
+                primary={otherUser.name}
+                secondary={chat.lastMessage || otherUser.status}
                 primaryTypographyProps={{ color: "text.primary", fontWeight: "bold" }}
                 secondaryTypographyProps={{ color: "text.secondary" }}
               />

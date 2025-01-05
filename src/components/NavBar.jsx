@@ -1,10 +1,18 @@
 import React from "react";
-import { AppBar, Toolbar, Typography, Button } from "@mui/material";
-import { signOutUser } from '../firebase/Auth';
+import { AppBar, Toolbar, Typography, Button, IconButton } from "@mui/material";
+import { signOutUser } from "../firebase/Auth";
+import { useNavigate } from "react-router-dom";
+import { useTheme } from "../ThemeContext";
+import DarkModeIcon from "@mui/icons-material/DarkMode";
+import LightModeIcon from "@mui/icons-material/LightMode";
 
 function Navbar() {
+  const navigate = useNavigate();
+  const { toggleTheme, theme } = useTheme();
+
   const handleLogout = async () => {
     await signOutUser();
+    navigate("/");
     window.location.reload();
   };
 
@@ -21,6 +29,9 @@ function Navbar() {
         >
           ChatSphere
         </Typography>
+        <IconButton onClick={toggleTheme} color="inherit" sx={{ mr: 1 }}>
+          {theme === "light" ? <DarkModeIcon /> : <LightModeIcon />}
+        </IconButton>
         <Button color="inherit" onClick={handleLogout}>
           Logout
         </Button>
