@@ -41,7 +41,7 @@ function Dashboard() {
         justifyContent: 'center',
         height: '100vh',
         width: '100vw',
-        background: 'linear-gradient(135deg, #f6f8ff, #ffffff)',
+        background: 'background.default',
         textAlign: 'center',
       }}
     >
