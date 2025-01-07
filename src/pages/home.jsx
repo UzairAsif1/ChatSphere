@@ -40,7 +40,7 @@ function HomePage() {
             maxWidth: '600px',
           }}
         >
-          A next-gen chat app built with React, MUI, and Firebase.
+          A next-gen chat app built with React, Firebase, and Material UI.
         </Typography>
         <Button
           variant="contained"
@@ -48,7 +48,7 @@ function HomePage() {
           sx={{
             mt: 4,
             px: 6,
-            py: 1.5,
+            py: 1,
             fontSize: '1.2rem',
             borderRadius: '8px',
           }}
