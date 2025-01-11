@@ -37,9 +37,10 @@ function Navbar() {
   };
 
   const handleProfile = () => {
-    navigate("/dashboard");
+    navigate("/profile");
     handleMenuClose();
   };
+
 
   return (
     <AppBar position="static" sx={{ bgcolor: "primary.main" }}>
