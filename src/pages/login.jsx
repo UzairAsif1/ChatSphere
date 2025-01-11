@@ -38,7 +38,7 @@ function AuthPage() {
           color: "primary.main",
           fontFamily: "Inter, Roboto, sans-serif",
           textAlign: "center",
-          fontSize: { xs: "1.8rem", sm: "2.5rem", md: "3rem" }, // Responsive font size
+          fontSize: { xs: "1.8rem", sm: "2.5rem", md: "3rem" },
         }}
       >
         Welcome to ChatSphere
@@ -63,7 +63,7 @@ function AuthPage() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          width: { xs: "90%", sm: "280px" }, // Responsive width
+          width: { xs: "90%", sm: "280px" },
           height: "48px",
           backgroundColor: "#FFFFFF",
           border: "1px solid #DADCE0",

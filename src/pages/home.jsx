@@ -1,9 +1,18 @@
-import React from 'react';
-import { Box, Typography, Button } from '@mui/material';
+import React, { useState } from 'react';
+import { 
+  Box,
+  Typography, 
+  Button,
+  IconButton } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import { useTheme } from "../ThemeContext";
+import DarkModeIcon from "@mui/icons-material/DarkMode";
+import LightModeIcon from "@mui/icons-material/LightMode";
+
 
 function HomePage() {
   const navigate = useNavigate();
+  const { toggleTheme, theme } = useTheme();
 
   return (
     <Box
@@ -14,12 +23,16 @@ function HomePage() {
         alignItems: 'center',
         height: '100vh',
         width: '100vw',
-        background: 'linear-gradient(135deg, #e3fdfd, #ffe6fa)',
+        background: 'background.default',
         color: 'text.primary',
         p: 3,
       }}
     >
-      <Box sx={{ textAlign: 'center', mt: 15 }}>
+      <IconButton onClick={toggleTheme} color="inherit" sx={{ mr: 1 }}>
+          {theme === "light" ? <DarkModeIcon /> : <LightModeIcon />}
+        </IconButton>
+
+      <Box sx={{ textAlign: 'center' }}>
         <Typography
           variant="h2"
           component="h1"
