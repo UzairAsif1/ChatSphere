@@ -1,4 +1,4 @@
-import { doc, setDoc, getDoc, updateDoc, arrayUnion, collection, addDoc, query, where, getDocs, onSnapshot, orderBy, serverTimestamp } from "firebase/firestore";
+import { doc, setDoc, getDoc, updateDoc, deleteDoc, arrayUnion, collection, addDoc, query, where, getDocs, onSnapshot, orderBy, serverTimestamp } from "firebase/firestore";
 import { db } from "./firebase";
 
 export async function addUserToFirestore(user) {
@@ -158,3 +158,20 @@ export function listenToMessages(chatId, callback) {
     callback(messages);
   });
 }
+
+export async function deleteChat(chatId) {
+  try {
+    const messagesRef = collection(db, "chats", chatId, "messages");
+    const messagesSnapshot = await getDocs(messagesRef);
+    messagesSnapshot.forEach(async (messageDoc) => {
+      await deleteDoc(doc(db, "chats", chatId, "messages", messageDoc.id));
+    });
+
+    await deleteDoc(doc(db, "chats", chatId));
+    console.log("Chat deleted successfully");
+  } catch (error) {
+    console.error("Error deleting chat:", error);
+  }
+}
+
+
